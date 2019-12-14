@@ -18,11 +18,6 @@ import java.util.LinkedList;
 public class Conversation implements Serializable {
     private String idx_send, idx_rec, tag_send, tag_rec, receiver_name;
     private byte[] salt;
-    private final int ITERATION_COUNT = 1024;
-    private final String DELIMITER = "##@@";
-    private final int MAX_CELLS = 100;
-    private final int KEY_LENGTH = 192;
-    private final int TAG_SIZE = 16;
     private SecretKey key_to, key_from;
     private Server server;
     private LinkedList<String> messages;
@@ -56,14 +51,15 @@ public class Conversation implements Serializable {
     private byte[] encrypt(String message) {
         //encrypt message with key_to, derive new key after encrypting
         try {
-            Cipher cipher = Cipher.getInstance("AES");
+            String[] config = Data.readConfig();
+            Cipher cipher = Cipher.getInstance(Constants.ENCRYPT_ALG);
             cipher.init(Cipher.ENCRYPT_MODE, key_to);
 
             //generate new tag, key and id
             SecureRandom secureRandom = new SecureRandom();
             SecretKey key = deriveKey(key_to);
-            idx_send = Integer.toString(secureRandom.nextInt(MAX_CELLS));
-            byte[] tag_bin = new byte[TAG_SIZE];
+            idx_send = Integer.toString(secureRandom.nextInt());
+            byte[] tag_bin = new byte[Integer.parseInt(config[4])];
             secureRandom.nextBytes(tag_bin);
             tag_send = Base64.getEncoder().encodeToString(tag_bin);
 
@@ -72,9 +68,9 @@ public class Conversation implements Serializable {
             System.out.println("new tag: " + tag_send);
 
             StringBuilder stringBuilder = new StringBuilder(message)
-                    .append(DELIMITER)
+                    .append(Constants.DELIMITER)
                     .append(idx_send)
-                    .append(DELIMITER)
+                    .append(Constants.DELIMITER)
                     .append(tag_send);
 
             byte[] cipher_text = cipher.doFinal(stringBuilder.toString().getBytes());
@@ -101,7 +97,7 @@ public class Conversation implements Serializable {
     private String decrypt(byte[] cipher_text) {
         //decrypt message, derive new key after decrypting
         try {
-            Cipher cipher = Cipher.getInstance("AES");
+            Cipher cipher = Cipher.getInstance(Constants.ENCRYPT_ALG);
             cipher.init(Cipher.DECRYPT_MODE, key_from);
             String decrypted = new String(cipher.doFinal(cipher_text));
             SecretKey key = deriveKey(key_from);
@@ -135,7 +131,7 @@ public class Conversation implements Serializable {
         if(server != null){
             MessageDigest message_digest = null;
             try {
-                message_digest = MessageDigest.getInstance("SHA-256");
+                message_digest = MessageDigest.getInstance(Constants.HASH_ALG);
                 byte[] hashed_tag = message_digest.digest(send_tag.getBytes());
                 server.add(send_idx, encrypted, hashed_tag);
                 messages.add(messageWithTime);
@@ -153,7 +149,7 @@ public class Conversation implements Serializable {
             while(encrypted != null) {
                 String decrypted = decrypt(encrypted);
                 if (decrypted != null) {
-                    String[] message = decrypted.split(DELIMITER);
+                    String[] message = decrypted.split(Constants.DELIMITER);
                     idx_rec = message[1];
                     tag_rec = message[2];
                     messages.add(message[0]);
@@ -179,10 +175,9 @@ public class Conversation implements Serializable {
 
             //key.destroy();
             SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt, ITERATION_COUNT, KEY_LENGTH);
+            KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt, Constants.ITERATION_COUNT, Constants.KEY_SIZE);
             SecretKey tmp = factory.generateSecret(spec);
-            SecretKeySpec aes = new SecretKeySpec(tmp.getEncoded(), "AES");
-            //System.out.println(this + ", " + receiver_name + " key: " + convertKeyToString(aes));
+            SecretKeySpec aes = new SecretKeySpec(tmp.getEncoded(), Constants.ENCRYPT_ALG);
             return aes;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

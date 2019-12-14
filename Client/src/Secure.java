@@ -34,7 +34,7 @@ public class Secure {
             KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, Constants.ITERATION_COUNT, Constants.KEY_SIZE);
             SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
             SecretKey key = f.generateSecret(spec);
-            SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+            SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), Constants.ENCRYPT_ALG);
             return keySpec;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

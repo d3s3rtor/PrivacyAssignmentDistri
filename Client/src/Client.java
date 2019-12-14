@@ -89,7 +89,7 @@ public class Client implements Serializable {
         try {
             if(server_config == null) server_config = Data.readConfig();
             //generate tags, keys, id and salt
-            keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator = KeyGenerator.getInstance(Constants.ENCRYPT_ALG);
 
             keyGenerator.init(Constants.KEY_SIZE);
             SecretKey key_ab = keyGenerator.generateKey();
@@ -162,7 +162,7 @@ public class Client implements Serializable {
 
     public SecretKey createKeyFromString(String secret) {
         byte[] decodedKey = Base64.getDecoder().decode(secret);
-        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+        return new SecretKeySpec(decodedKey, 0, decodedKey.length, Constants.ENCRYPT_ALG);
 
     }
 

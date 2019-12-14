@@ -27,7 +27,7 @@ public class Data {
 
     public static void writeDataToDisk(Client client) {
         try {
-            Cipher cipher = Cipher.getInstance("AES");
+            Cipher cipher = Cipher.getInstance(Constants.ENCRYPT_ALG);
             cipher.init(Cipher.ENCRYPT_MODE, Secure.getSecretKey());
 
             SealedObject sealedObject = new SealedObject(client, cipher);
@@ -51,7 +51,7 @@ public class Data {
 
     public static Client readDataFromDisk() {
         try {
-            Cipher cipher = Cipher.getInstance("AES");
+            Cipher cipher = Cipher.getInstance(Constants.ENCRYPT_ALG);
             cipher.init(Cipher.DECRYPT_MODE, Secure.getSecretKey());
             CipherInputStream cipherInputStream = new CipherInputStream(new BufferedInputStream(new FileInputStream(Secure.createHashedFilename())), cipher);
             ObjectInputStream inputStream = new ObjectInputStream(cipherInputStream);
