@@ -1,15 +1,14 @@
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Client implements Serializable {
@@ -52,22 +51,6 @@ public class Client implements Serializable {
         return name;
     }
 
-    public Map<String, String> readSecrets(String filename) {
-        Map<String, String> secrets = new HashMap<>();
-        try {
-            Reader reader = new FileReader(filename);
-            BufferedReader in = new BufferedReader(reader);
-            String s = in.readLine();
-            System.out.println("read: " + s);
-            in.close();
-            reader.close();
-            return secretsStringToMap(s);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     private Map<String, String> secretsStringToMap(String s) {
         Map<String, String> secrets = new HashMap<>();
@@ -137,25 +120,46 @@ public class Client implements Serializable {
         return stringBuilder.toString();
     }
 
-    public Map<String, String> writeSecrets(String filename) {
-        Map<String, String> secrets = new HashMap<>();
+    public Map<String, String> writeSecrets(String filename, String password) {
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
-            Date date = new Date(System.currentTimeMillis());
-            //Writer writer = new FileWriter(formatter.format(date));
-
-            //testing purpose
-            Writer writer = new FileWriter(filename);
-
-            String s = generateSecrets();
-            secrets = secretsStringToMap(s);
-            System.out.println("written: " + s);
-            writer.write(s);
-            writer.close();
+            Map<String, String> secrets;
+            String data = generateSecrets();
+            secrets = secretsStringToMap(data);
+            Data.writeBumpFile(filename, password, data);
             return secrets;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Map<String, String> readSecrets(String filename, String password) {
+        try {
+            String bump = Data.readBumpFile(filename, password);
+            return secretsStringToMap(bump);
 
         } catch (IOException e) {
-
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
         }
         return null;
     }

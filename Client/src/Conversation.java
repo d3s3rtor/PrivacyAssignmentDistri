@@ -58,14 +58,10 @@ public class Conversation implements Serializable {
             //generate new tag, key and id
             SecureRandom secureRandom = new SecureRandom();
             SecretKey key = deriveKey(key_to);
-            idx_send = Integer.toString(secureRandom.nextInt());
+            idx_send = Integer.toString(secureRandom.nextInt(Integer.parseInt(config[3])));
             byte[] tag_bin = new byte[Integer.parseInt(config[4])];
             secureRandom.nextBytes(tag_bin);
             tag_send = Base64.getEncoder().encodeToString(tag_bin);
-
-
-            System.out.println("new idx: " + idx_send);
-            System.out.println("new tag: " + tag_send);
 
             StringBuilder stringBuilder = new StringBuilder(message)
                     .append(Constants.DELIMITER)
@@ -74,7 +70,6 @@ public class Conversation implements Serializable {
                     .append(tag_send);
 
             byte[] cipher_text = cipher.doFinal(stringBuilder.toString().getBytes());
-            String encrypted = new String(cipher_text);
 
             key_to = key;
 
@@ -171,14 +166,9 @@ public class Conversation implements Serializable {
         //omzetten van key naar Base64 encoding om vervolgens passwd based key derivation te gebruiken
         //mbv afgesproken salt, nieuwe key maken
         try {
-            String secret = convertKeyToString(key);
-
-            //key.destroy();
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt, Constants.ITERATION_COUNT, Constants.KEY_SIZE);
-            SecretKey tmp = factory.generateSecret(spec);
-            SecretKeySpec aes = new SecretKeySpec(tmp.getEncoded(), Constants.ENCRYPT_ALG);
-            return aes;
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(Constants.KDF_ALG);
+            KeySpec spec = new PBEKeySpec(convertKeyToString(key).toCharArray(), salt, Constants.ITERATION_COUNT, Constants.KEY_SIZE);
+            return new SecretKeySpec(factory.generateSecret(spec).getEncoded(), Constants.ENCRYPT_ALG);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (InvalidKeySpecException e) {
