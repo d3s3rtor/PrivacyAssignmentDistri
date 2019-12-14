@@ -12,20 +12,12 @@ public class Secure {
     private static String username;
     private static String password;
 
-    public static String getUsername() {
-        return username;
-    }
-
     public static void setUsername(String uname) {
         username = uname;
     }
 
     public static void setPassword(String passwd) {
         password = passwd;
-    }
-
-    public static String getPassword() {
-        return password;
     }
 
     public static SecretKeySpec getSecretKey() {

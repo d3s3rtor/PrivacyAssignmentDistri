@@ -10,11 +10,13 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ChatsOverview extends JFrame implements onUpdate {
+public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
     private JPanel panel1;
     private JScrollPane conversationsScrollPane;
     private JButton addConversationButton;
@@ -31,6 +33,8 @@ public class ChatsOverview extends JFrame implements onUpdate {
     private Timer receiveTimer;
     private onUpdate onUpdate;
     private Thread t;
+    private TorClient torClient;
+
 
     public void CenteredFrame(JFrame objFrame) {
         Dimension objDimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -39,7 +43,6 @@ public class ChatsOverview extends JFrame implements onUpdate {
         objFrame.setLocation(iCoordX, iCoordY);
     }
 
-    public TorClient torClient;
 
     public TorInitializationListener createInitalizationListner() {
         return new TorInitializationListener() {
@@ -60,10 +63,9 @@ public class ChatsOverview extends JFrame implements onUpdate {
         };
     }
 
+
     public void testOrchidUsingSystemPropsProxy() {
         try {
-            //Caution: Native Java DNS lookup will occur outside of the tor network.
-            //Monitor traffic on port 53 using tcpdump or equivalent.
             System.setProperty("socksProxyHost", "127.0.0.1");
             System.setProperty("socksProxyPort", "9150");
             Document document = Jsoup.connect("https://wtfismyip.com/").get();
@@ -74,8 +76,6 @@ public class ChatsOverview extends JFrame implements onUpdate {
 
             TorLabel.setText("ip: " + ip + " host: " + hostname);
 
-            System.setProperty("socksProxyHost", "");
-            System.setProperty("socksProxyPort", "");
 
         } catch (Exception ex) {
             Logger.getLogger(OrchidDemo.class.getName()).log(Level.SEVERE, null, ex);
@@ -94,6 +94,7 @@ public class ChatsOverview extends JFrame implements onUpdate {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        this.addWindowListener(this);
         this.client = Data.readDataFromDisk();
         this.receiveTimer = new Timer(1000, this::receiveMessage);
         receiveTimer.start();
@@ -126,6 +127,8 @@ public class ChatsOverview extends JFrame implements onUpdate {
         reconnectTorButton.addActionListener(e -> {
             try {
                 t.interrupt();
+                System.setProperty("socksProxyHost", "");
+                System.setProperty("socksProxyPort", "");
                 torClient.stop();
                 torClient.removeInitializationListener(createInitalizationListner());
                 torClient = new TorClient();
@@ -154,7 +157,7 @@ public class ChatsOverview extends JFrame implements onUpdate {
 
         sendButton.addActionListener(e -> {
             if (selectedConversation != null) {
-                selectedConversation.setServer(this.client.startServer());
+                selectedConversation.setServer(this.client.connectToServer());
                 selectedConversation.send(client.getName() + ": " + chatInputTextField.getText(), onUpdate);
                 chatInputTextField.setText("");
             }
@@ -163,7 +166,7 @@ public class ChatsOverview extends JFrame implements onUpdate {
 
     public void receiveMessage(ActionEvent e) {
         if (selectedConversation != null) {
-            selectedConversation.setServer(client.startServer());
+            selectedConversation.setServer(client.connectToServer());
             selectedConversation.receive(onUpdate);
         }
     }
@@ -210,6 +213,40 @@ public class ChatsOverview extends JFrame implements onUpdate {
     public void onUpdateMessages() {
         updateMessages(selectedConversation);
         Data.writeDataToDisk(client);
+
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        Data.writeDataToDisk(client);
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
 
     }
 }

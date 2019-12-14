@@ -21,11 +21,11 @@ public class Client implements Serializable {
         this.name = name;
         this.conversations = new TreeMap();
         new Thread(() -> {
-            startServer();
+            connectToServer();
         }).start();
     }
 
-    public Server startServer() {
+    public Server connectToServer() {
         try {
             server_config = Data.readConfig();
             System.out.println(Arrays.toString(server_config));
