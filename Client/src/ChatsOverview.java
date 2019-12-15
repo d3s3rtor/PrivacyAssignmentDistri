@@ -186,8 +186,7 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
     }
 
     public String getCurrentState() {
-        Data d = new Data();
-        return d.readDataFromDisk().getState();
+        return Data.readDataFromDisk().getState();
     }
 
     public void receiveMessage(ActionEvent e) {
