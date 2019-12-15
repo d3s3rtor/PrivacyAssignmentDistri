@@ -21,12 +21,14 @@ public class Client implements Serializable {
         this.name = name;
         this.conversations = new TreeMap();
         new Thread(() -> {
-            startServer();
+            connectToServer();
         }).start();
     }
 
-    public Server startServer() {
+    public Server connectToServer() {
         try {
+            System.setProperty("socksProxyHost", "");
+            System.setProperty("socksProxyPort", "");
             server_config = Data.readConfig();
             System.out.println(Arrays.toString(server_config));
             Registry myRegistry = LocateRegistry.getRegistry(server_config[0], Integer.parseInt(server_config[1]));
