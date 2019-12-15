@@ -12,9 +12,10 @@ public class GUI {
         return table;
     }
 
-    public JButton getResetButton(){
+    public JButton getResetButton() {
         return resetButton;
     }
+
     public JPanel getMainPanel() {
         return mainPanel;
     }

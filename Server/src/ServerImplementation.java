@@ -54,7 +54,8 @@ public class ServerImplementation extends UnicastRemoteObject implements Server 
         updateTable();
 
     }
-    private void resetBoxes(){
+
+    private void resetBoxes() {
         boxes = new ArrayList<>();
         for (int i = 0; i < MAX_CELLS; i++) {
             Map<String, byte[]> map = new HashMap<>();

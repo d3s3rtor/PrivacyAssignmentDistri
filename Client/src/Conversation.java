@@ -1,4 +1,3 @@
-
 import javax.crypto.*;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -16,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.LinkedList;
 
- class Conversation implements Serializable {
+class Conversation implements Serializable {
     private String idx_send, idx_rec, tag_send, tag_rec, receiver_name;
     private byte[] salt;
     private SecretKey key_to, key_from;
@@ -24,7 +23,7 @@ import java.util.LinkedList;
     private LinkedList<String> messages;
 
 
-     Conversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from, Server server) {
+    Conversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from, Server server) {
         this.idx_send = idx_send;
         this.idx_rec = idx_rec;
         this.tag_send = tag_send;
@@ -37,15 +36,15 @@ import java.util.LinkedList;
         this.messages = new LinkedList<>();
     }
 
-     String getReceiver_name() {
+    String getReceiver_name() {
         return receiver_name;
     }
 
-     LinkedList<String> getMessages() {
+    LinkedList<String> getMessages() {
         return messages;
     }
 
-     void setServer(Server server) {
+    void setServer(Server server) {
         this.server = server;
     }
 
@@ -98,9 +97,9 @@ import java.util.LinkedList;
             String decrypted = new String(cipher.doFinal(cipher_text));
             SecretKey key = deriveKey(key_from);
 
-            try{
+            try {
                 key_from.destroy();
-            }catch (DestroyFailedException e) {
+            } catch (DestroyFailedException e) {
             }
             if (key != null) {
                 key_from = key;
@@ -121,14 +120,14 @@ import java.util.LinkedList;
     }
 
 
-     void send(String message, onUpdate onUpdate) {
+    void send(String message, onUpdate onUpdate) {
         String send_idx = idx_send;
         String send_tag = tag_send;
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String messageWithTime = formatter.format(new Date(System.currentTimeMillis())) + ":\t" + message;
         byte[] encrypted = encrypt(messageWithTime);
 
-        if(server != null){
+        if (server != null) {
             MessageDigest message_digest = null;
             try {
                 message_digest = MessageDigest.getInstance(Constants.HASH_ALG);
@@ -142,11 +141,11 @@ import java.util.LinkedList;
         }
     }
 
-     void receive(onUpdate onUpdate) {
+    void receive(onUpdate onUpdate) {
         try {
             byte[] encrypted = server.get(idx_rec, tag_rec);
 
-            while(encrypted != null) {
+            while (encrypted != null) {
                 String decrypted = decrypt(encrypted);
                 if (decrypted != null) {
                     String[] message = decrypted.split(Constants.DELIMITER);

@@ -71,10 +71,10 @@ public class Login extends JFrame {
             }
             if (username == false) {
                 int res = JOptionPane.showConfirmDialog(rootPanel,
-                        userName + " was not found. Do you want to register first?","Register",JOptionPane.YES_NO_OPTION);
+                        userName + " was not found. Do you want to register first?", "Register", JOptionPane.YES_NO_OPTION);
                 usernameTextField.setText("");
                 passwordPasswordField.setText("");
-                if(res == 0) {//yes
+                if (res == 0) {//yes
                     RegisterForm registerForm = new RegisterForm();
                     registerForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     registerForm.setVisible(true);

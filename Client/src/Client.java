@@ -2,7 +2,6 @@ import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -13,52 +12,52 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.*;
 
- class Client implements Serializable {
+class Client implements Serializable {
     private String name;
     private Map<String, Conversation> conversations;
     private static Server server;
     private String[] server_config;
 
-     Client(String name) {
+    Client(String name) {
         this.name = name;
         this.conversations = new TreeMap();
     }
 
-     Server connectToServer() throws RemoteException {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<?> future = executor.submit(() -> {
-                System.setProperty("socksProxyHost", "");
-                System.setProperty("socksProxyPort", "");
-                server_config = Data.readConfig();
-                System.out.println(Arrays.toString(server_config));
-                Registry myRegistry = null;
-                try {
-                    myRegistry = LocateRegistry.getRegistry(server_config[0], Integer.parseInt(server_config[1]));
-                    server = ((Server) myRegistry.lookup(server_config[2]));
-                } catch (RemoteException | NotBoundException e) {
-                    e.printStackTrace();
-                    //Wait until it gets interrupted
-                    while(true){
-                    }
-                }
-            });
-            executor.shutdown();
+    Server connectToServer() throws RemoteException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<?> future = executor.submit(() -> {
+            System.setProperty("socksProxyHost", "");
+            System.setProperty("socksProxyPort", "");
+            server_config = Data.readConfig();
+            System.out.println(Arrays.toString(server_config));
+            Registry myRegistry = null;
             try {
-                future.get(Constants.SERVER_CONNECT_TIMEOUT, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                myRegistry = LocateRegistry.getRegistry(server_config[0], Integer.parseInt(server_config[1]));
+                server = ((Server) myRegistry.lookup(server_config[2]));
+            } catch (RemoteException | NotBoundException e) {
                 e.printStackTrace();
-                future.cancel(true);
-                throw new RemoteException();
+                //Wait until it gets interrupted
+                while (true) {
+                }
             }
+        });
+        executor.shutdown();
+        try {
+            future.get(Constants.SERVER_CONNECT_TIMEOUT, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            e.printStackTrace();
+            future.cancel(true);
+            throw new RemoteException();
+        }
         return server;
     }
 
-     Map<String, Conversation> getConversations() {
+    Map<String, Conversation> getConversations() {
         return conversations;
     }
 
 
-     void addConversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from) {
+    void addConversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from) {
         Conversation conv = new Conversation(idx_send, idx_rec, tag_send, tag_rec, receiver_name, salt, key_to, key_from, server);
         conversations.put(receiver_name, conv);
     }
@@ -132,7 +131,7 @@ import java.util.concurrent.*;
         return stringBuilder.toString();
     }
 
-     Map<String, String> writeSecrets(String filename, String password) {
+    Map<String, String> writeSecrets(String filename, String password) {
         try {
             Map<String, String> secrets;
             String data = generateSecrets();
@@ -155,7 +154,7 @@ import java.util.concurrent.*;
         return null;
     }
 
-     Map<String, String> readSecrets(String filename, String password) {
+    Map<String, String> readSecrets(String filename, String password) {
         try {
             String bump = Data.readBumpFile(filename, password);
             return secretsStringToMap(bump);
@@ -176,7 +175,7 @@ import java.util.concurrent.*;
         return null;
     }
 
-     SecretKey createKeyFromString(String secret) {
+    SecretKey createKeyFromString(String secret) {
         byte[] decodedKey = Base64.getDecoder().decode(secret);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, Constants.ENCRYPT_ALG);
 

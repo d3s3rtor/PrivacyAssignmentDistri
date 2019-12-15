@@ -29,11 +29,12 @@ public class Data {
         return settings;
 
     }
-    public static void resetBoxes(){
-        try{
+
+    public static void resetBoxes() {
+        try {
             File file = new File("boxes.json");
             file.delete();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -42,7 +43,8 @@ public class Data {
         Gson gson = new Gson();
         try {
             if (boxes != null) {
-                Type listType = new TypeToken<List<Map<String, byte[]>>>(){}.getType();
+                Type listType = new TypeToken<List<Map<String, byte[]>>>() {
+                }.getType();
                 String json = gson.toJson(boxes, listType);
                 JsonWriter jsonWriter = new JsonWriter(new FileWriter("boxes.json"));
                 jsonWriter.jsonValue(json);
@@ -53,11 +55,13 @@ public class Data {
             e.printStackTrace();
         }
     }
-    public static List<Map<String, byte[]>> loadBoxes(){
+
+    public static List<Map<String, byte[]>> loadBoxes() {
         Gson gson = new Gson();
         try {
             JsonReader jsonReader = new JsonReader(new FileReader("boxes.json"));
-            Type listType = new TypeToken<List<Map<String, byte[]>>>(){}.getType();
+            Type listType = new TypeToken<List<Map<String, byte[]>>>() {
+            }.getType();
             List<Map<String, byte[]>> boxes = gson.fromJson(jsonReader, listType);
             jsonReader.close();
             return boxes;

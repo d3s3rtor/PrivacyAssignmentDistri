@@ -12,7 +12,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.net.ConnectException;
 import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.logging.Level;
