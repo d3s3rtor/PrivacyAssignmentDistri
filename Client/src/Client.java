@@ -21,11 +21,9 @@ import java.util.concurrent.*;
     private static String state;
     private String[] server_config;
 
-     Client(String name) throws RemoteException {
+     Client(String name) {
         this.name = name;
         this.conversations = new TreeMap();
-        connectToServer();
-
     }
 
      Server connectToServer() throws RemoteException {
