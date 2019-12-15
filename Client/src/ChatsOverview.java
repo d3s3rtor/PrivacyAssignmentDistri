@@ -117,7 +117,7 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
         setSize((int) screenSize.getWidth() / 2, (int) screenSize.getHeight() / 2);
         CenteredFrame(this);
 
-        setTitle("Chats");
+        setTitle(client.getName() + "'s Chats");
         addConversationButton.addActionListener(e -> {
             Bump nBump = new Bump(this.client, onUpdate);
             nBump.setDefaultCloseOperation(Bump.EXIT_ON_CLOSE);
@@ -168,19 +168,15 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
 
         sendButton.addActionListener(e -> {
             if (selectedConversation != null) {
-                if (client.getState().equals(getCurrentState())) {
-                    new Thread(() -> {
-                        try {
-                            selectedConversation.setServer(this.client.connectToServer());
-                            selectedConversation.send(chatInputTextField.getText(), onUpdate);
-                            chatInputTextField.setText("");
-                        } catch (RemoteException ex) {
+                new Thread(() -> {
+                    try {
+                        selectedConversation.setServer(this.client.connectToServer());
+                        selectedConversation.send(chatInputTextField.getText(), onUpdate);
+                        chatInputTextField.setText("");
+                    } catch (RemoteException ex) {
 
-                        }
-                    }).start();
-                } else {
-                    JOptionPane.showMessageDialog(panel1, "Current state is corrupted.");
-                }
+                    }
+                }).start();
             }
         });
     }
@@ -191,101 +187,105 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
 
     public void receiveMessage(ActionEvent e) {
         if (selectedConversation != null) {
-            if (client.getState().equals(getCurrentState())) {
-                new Thread(() -> {
-                    try {
-                        selectedConversation.setServer(client.connectToServer());
-                        selectedConversation.receive(onUpdate);
-                        serverStatusLabel.setText("");
-                    } catch (RemoteException ex) {
-                        serverStatusLabel.setText("Not connected to the server!");
-                    }
-                }).start();
-            } else {
-                JOptionPane.showMessageDialog(panel1, "Current state is corrupted.");
-            }
+
+            new Thread(() -> {
+                try {
+                    selectedConversation.setServer(client.connectToServer());
+                    selectedConversation.receive(onUpdate);
+                    serverStatusLabel.setText("");
+                } catch (RemoteException ex) {
+                    serverStatusLabel.setText("Not connected to the server!");
+                }
+            }).start();
         }
     }
 
 
     private void updateMessages(Conversation conversation) {
         if (conversation != null) {
-            DefaultListModel model = new DefaultListModel();
-            for (String message : conversation.getMessages()) {
-                model.addElement(message);
+            if(client.getState().equals(getCurrentState())){
+                System.out.println(client.getState());
+                System.out.println(getCurrentState());
+                DefaultListModel model = new DefaultListModel();
+                for (String message : conversation.getMessages()) {
+                    model.addElement(message);
+                }
+                messageList.setModel(model);
+            } else {
+                JOptionPane.showMessageDialog(panel1, "Current state is corrupted.");
             }
-            messageList.setModel(model);
         }
     }
 
-    public void refreshChats() {
-        Map<String, Conversation> conversations = client.getConversations();
-        table.setFont(new Font("Corbel", Font.BOLD, 16));
-        Object[] columns = {"Conversations"};
-        DefaultTableModel model = new DefaultTableModel();
+        public void refreshChats () {
+            Map<String, Conversation> conversations = client.getConversations();
+            table.setFont(new Font("Corbel", Font.BOLD, 16));
+            Object[] columns = {"Conversations"};
+            DefaultTableModel model = new DefaultTableModel();
 
-        model.setColumnIdentifiers(columns);
-        table.setModel(model);
+            model.setColumnIdentifiers(columns);
+            table.setModel(model);
 
-        Object[] row = new Object[1];
+            Object[] row = new Object[1];
 
-        for (Map.Entry<String, Conversation> entry : conversations.entrySet()) {
-            row[0] = entry.getKey();
-            model.addRow(row);
+            for (Map.Entry<String, Conversation> entry : conversations.entrySet()) {
+                row[0] = entry.getKey();
+                model.addRow(row);
+            }
+
+            table.setModel(model);
+            table.repaint();
+            panel1.updateUI();
         }
 
-        table.setModel(model);
-        table.repaint();
-        panel1.updateUI();
+
+        @Override
+        public void onUpdateChats () {
+            refreshChats();
+            Data.writeDataToDisk(client);
+        }
+
+        @Override
+        public void onUpdateMessages () {
+            if (client.getState().equals(getCurrentState())) {
+                updateMessages(selectedConversation);
+                Data.writeDataToDisk(client);
+            }
+        }
+
+        @Override
+        public void windowOpened (WindowEvent e){
+
+        }
+
+        @Override
+        public void windowClosing (WindowEvent e){
+            Data.writeDataToDisk(client);
+        }
+
+        @Override
+        public void windowClosed (WindowEvent e){
+        }
+
+        @Override
+        public void windowIconified (WindowEvent e){
+
+        }
+
+        @Override
+        public void windowDeiconified (WindowEvent e){
+
+        }
+
+        @Override
+        public void windowActivated (WindowEvent e){
+
+        }
+
+        @Override
+        public void windowDeactivated (WindowEvent e){
+
+        }
     }
-
-
-    @Override
-    public void onUpdateChats() {
-        refreshChats();
-        Data.writeDataToDisk(client);
-    }
-
-    @Override
-    public void onUpdateMessages() {
-        updateMessages(selectedConversation);
-        Data.writeDataToDisk(client);
-
-    }
-
-    @Override
-    public void windowOpened(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowClosing(WindowEvent e) {
-        Data.writeDataToDisk(client);
-    }
-
-    @Override
-    public void windowClosed(WindowEvent e) {
-    }
-
-    @Override
-    public void windowIconified(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowActivated(WindowEvent e) {
-
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent e) {
-
-    }
-}
 
 

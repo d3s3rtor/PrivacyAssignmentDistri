@@ -15,10 +15,10 @@ import java.util.*;
 import java.util.concurrent.*;
 
  class Client implements Serializable {
-    private String name;
+     private static String state;
+     private String name;
     private Map<String, Conversation> conversations;
     private static Server server;
-    private static String state;
     private String[] server_config;
 
      Client(String name) {
@@ -70,6 +70,8 @@ import java.util.concurrent.*;
     }
 
 
+
+
     private Map<String, String> secretsStringToMap(String s) {
         Map<String, String> secrets = new HashMap<>();
         String[] secret = s.split(Constants.DELIMITER);
@@ -84,7 +86,11 @@ import java.util.concurrent.*;
         return secrets;
     }
 
-     public static String getState() {
+     public static void setState(String stat) {
+         state = stat;
+     }
+
+     public String getState() {
          return state;
      }
 
@@ -137,7 +143,7 @@ import java.util.concurrent.*;
             MessageDigest message_digest = MessageDigest.getInstance(Constants.HASH_ALG);
             byte[] hashedState = message_digest.digest(stringBuilder.toString().getBytes());
             //indien de generatesecrets methode opgeroepen werd, wil het zeggen dat de staat verandert.
-            state = Base64.getEncoder().encodeToString(hashedState);
+            setState(Base64.getEncoder().encodeToString(hashedState));
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
