@@ -41,7 +41,6 @@ import java.util.concurrent.*;
                     e.printStackTrace();
                     //Wait until it gets interrupted
                     while(true){
-                        System.out.printf("");
                     }
                 }
             });
