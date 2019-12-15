@@ -1,4 +1,4 @@
-public interface onUpdate {
+interface onUpdate {
     void onUpdateChats();
     void onUpdateMessages();
 }

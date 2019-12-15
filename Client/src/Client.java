@@ -13,20 +13,20 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class Client implements Serializable {
+ class Client implements Serializable {
     private String name;
     private Map<String, Conversation> conversations;
     private static Server server;
     private String[] server_config;
 
-    public Client(String name) throws RemoteException {
+     Client(String name) throws RemoteException {
         this.name = name;
         this.conversations = new TreeMap();
         connectToServer();
 
     }
 
-    public Server connectToServer() throws RemoteException {
+     Server connectToServer() throws RemoteException {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<?> future = executor.submit(() -> {
                 System.setProperty("socksProxyHost", "");
@@ -56,17 +56,17 @@ public class Client implements Serializable {
         return server;
     }
 
-    public Map<String, Conversation> getConversations() {
+     Map<String, Conversation> getConversations() {
         return conversations;
     }
 
 
-    public void addConversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from) {
+     void addConversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from) {
         Conversation conv = new Conversation(idx_send, idx_rec, tag_send, tag_rec, receiver_name, salt, key_to, key_from, server);
         conversations.put(receiver_name, conv);
     }
 
-    public String getName() {
+     String getName() {
         return name;
     }
 
@@ -139,7 +139,7 @@ public class Client implements Serializable {
         return stringBuilder.toString();
     }
 
-    public Map<String, String> writeSecrets(String filename, String password) {
+     Map<String, String> writeSecrets(String filename, String password) {
         try {
             Map<String, String> secrets;
             String data = generateSecrets();
@@ -162,7 +162,7 @@ public class Client implements Serializable {
         return null;
     }
 
-    public Map<String, String> readSecrets(String filename, String password) {
+     Map<String, String> readSecrets(String filename, String password) {
         try {
             String bump = Data.readBumpFile(filename, password);
             return secretsStringToMap(bump);
@@ -183,7 +183,7 @@ public class Client implements Serializable {
         return null;
     }
 
-    public SecretKey createKeyFromString(String secret) {
+     SecretKey createKeyFromString(String secret) {
         byte[] decodedKey = Base64.getDecoder().decode(secret);
         return new SecretKeySpec(decodedKey, 0, decodedKey.length, Constants.ENCRYPT_ALG);
 

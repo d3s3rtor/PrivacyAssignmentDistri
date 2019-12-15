@@ -9,9 +9,9 @@ import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.Properties;
 
-public class Data {
+ class Data {
 
-    public static String[] readConfig() {
+     static String[] readConfig() {
         Properties prop = new Properties();
         String[] settings = null;
         try {
@@ -30,7 +30,7 @@ public class Data {
 
     }
 
-    public static void writeDataToDisk(Client client) {
+     static void writeDataToDisk(Client client) {
         try {
             Cipher cipher = Cipher.getInstance(Constants.ENCRYPT_ALG);
             cipher.init(Cipher.ENCRYPT_MODE, Secure.getSecretKey());
@@ -54,7 +54,7 @@ public class Data {
         }
     }
 
-    public static Client readDataFromDisk() {
+     static Client readDataFromDisk() {
         try {
             Cipher cipher = Cipher.getInstance(Constants.ENCRYPT_ALG);
             cipher.init(Cipher.DECRYPT_MODE, Secure.getSecretKey());
@@ -81,7 +81,7 @@ public class Data {
         return null;
     }
 
-    public static void writeBumpFile(String filename, String password, String data) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+     static void writeBumpFile(String filename, String password, String data) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         SecretKeySpec secret = generateSecretFromPassword(password);
         Writer writer = new FileWriter(filename);
         Cipher cipher = Cipher.getInstance(Constants.ENCRYPT_ALG);
@@ -93,7 +93,7 @@ public class Data {
 
     }
 
-    public static String readBumpFile(String filename, String password) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+     static String readBumpFile(String filename, String password) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         BufferedReader in = new BufferedReader(new FileReader(filename));
         byte[] decode = Base64.getDecoder().decode(in.readLine());
         SecretKeySpec secret = generateSecretFromPassword(password);

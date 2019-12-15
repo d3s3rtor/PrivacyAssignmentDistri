@@ -104,7 +104,7 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
         }
         this.addWindowListener(this);
         this.client = Data.readDataFromDisk();
-        this.receiveTimer = new Timer(Constants.SERVER_CONNECT_TIMEOUT*1000, this::receiveMessage);
+        this.receiveTimer = new Timer(Constants.SERVER_CONNECT_TIMEOUT * 1000, this::receiveMessage);
         receiveTimer.start();
         refreshChats();
         add(panel1);
@@ -171,12 +171,12 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
                 new Thread(() -> {
                     try {
                         selectedConversation.setServer(this.client.connectToServer());
-                        selectedConversation.send(client.getName() + ": " + chatInputTextField.getText(), onUpdate);
+                        selectedConversation.send(chatInputTextField.getText(), onUpdate);
+                        chatInputTextField.setText("");
                     } catch (RemoteException ex) {
 
                     }
                 }).start();
-                chatInputTextField.setText("");
             }
         });
     }

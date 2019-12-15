@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.LinkedList;
 
-public class Conversation implements Serializable {
+ class Conversation implements Serializable {
     private String idx_send, idx_rec, tag_send, tag_rec, receiver_name;
     private byte[] salt;
     private SecretKey key_to, key_from;
@@ -23,7 +23,7 @@ public class Conversation implements Serializable {
     private LinkedList<String> messages;
 
 
-    public Conversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from, Server server) {
+     Conversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from, Server server) {
         this.idx_send = idx_send;
         this.idx_rec = idx_rec;
         this.tag_send = tag_send;
@@ -36,15 +36,15 @@ public class Conversation implements Serializable {
         this.messages = new LinkedList<>();
     }
 
-    public String getReceiver_name() {
+     String getReceiver_name() {
         return receiver_name;
     }
 
-    public LinkedList<String> getMessages() {
+     LinkedList<String> getMessages() {
         return messages;
     }
 
-    public void setServer(Server server) {
+     void setServer(Server server) {
         this.server = server;
     }
 
@@ -115,12 +115,11 @@ public class Conversation implements Serializable {
     }
 
 
-    public void send(String message, onUpdate onUpdate) {
+     void send(String message, onUpdate onUpdate) {
         String send_idx = idx_send;
         String send_tag = tag_send;
-        //add time to message
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        String messageWithTime = formatter.format(new Date(System.currentTimeMillis())) + " " + message;
+        String messageWithTime = formatter.format(new Date(System.currentTimeMillis())) + ":\t" + message;
         byte[] encrypted = encrypt(messageWithTime);
 
         if(server != null){
@@ -129,7 +128,7 @@ public class Conversation implements Serializable {
                 message_digest = MessageDigest.getInstance(Constants.HASH_ALG);
                 byte[] hashed_tag = message_digest.digest(send_tag.getBytes());
                 server.add(send_idx, encrypted, hashed_tag);
-                messages.add(messageWithTime);
+                messages.add(Secure.getUsername() + " " + messageWithTime);
                 onUpdate.onUpdateMessages();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -137,7 +136,7 @@ public class Conversation implements Serializable {
         }
     }
 
-    public void receive(onUpdate onUpdate) {
+     void receive(onUpdate onUpdate) {
         try {
             byte[] encrypted = server.get(idx_rec, tag_rec);
 
@@ -147,7 +146,7 @@ public class Conversation implements Serializable {
                     String[] message = decrypted.split(Constants.DELIMITER);
                     idx_rec = message[1];
                     tag_rec = message[2];
-                    messages.add(message[0]);
+                    messages.add(receiver_name + ": " + message[0]);
                     onUpdate.onUpdateMessages();
                     encrypted = server.get(idx_rec, tag_rec);
                 }

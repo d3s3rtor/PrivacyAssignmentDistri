@@ -8,19 +8,22 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
 
-public class Secure {
+ class Secure {
     private static String username;
     private static String password;
 
-    public static void setUsername(String uname) {
+     static String getUsername(){
+        return username;
+    }
+    static void setUsername(String uname) {
         username = uname;
     }
 
-    public static void setPassword(String passwd) {
+     static void setPassword(String passwd) {
         password = passwd;
     }
 
-    public static SecretKeySpec getSecretKey() {
+     static SecretKeySpec getSecretKey() {
         try {
             byte[] salt = new byte[16];
             KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, Constants.ITERATION_COUNT, Constants.KEY_SIZE);
@@ -35,7 +38,7 @@ public class Secure {
         }
         return null;
     }
-    public static String createHashedFilename() {
+     static String createHashedFilename() {
         try {
             if (username != null) {
                 MessageDigest message_digest = MessageDigest.getInstance(Constants.HASH_ALG);
