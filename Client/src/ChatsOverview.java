@@ -143,8 +143,6 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
         });
         table.getSelectionModel().addListSelectionListener(event -> {
             if (table.getSelectedRow() > -1) {
-                System.setProperty("socksProxyHost", "");
-                System.setProperty("socksProxyPort", "");
                 String username = table.getValueAt(table.getSelectedRow(), 0).toString();
                 selectedConversation = this.client.getConversations().getOrDefault(username, null);
                 sendButton.setEnabled(true);
@@ -159,7 +157,6 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
 
         sendButton.addActionListener(e -> {
             if (selectedConversation != null) {
-                JOptionPane.showMessageDialog(panel1, System.getProperty("socksProxyHost") + " " + System.getProperty("socksProxyPort"));
                 selectedConversation.setServer(this.client.connectToServer());
                 selectedConversation.send(client.getName() + ": " + chatInputTextField.getText(), onUpdate);
                 chatInputTextField.setText("");
