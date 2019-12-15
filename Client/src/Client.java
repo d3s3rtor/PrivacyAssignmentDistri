@@ -63,10 +63,6 @@ import java.util.concurrent.*;
         conversations.put(receiver_name, conv);
     }
 
-     String getName() {
-        return name;
-    }
-
 
     private Map<String, String> secretsStringToMap(String s) {
         Map<String, String> secrets = new HashMap<>();

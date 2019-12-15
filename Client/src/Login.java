@@ -97,7 +97,6 @@ public class Login extends JFrame {
             if (checked) {
                 passwordPasswordField.setEchoChar((char) 0);
             } else {
-                //TODO: make cirkels instead of asterix
                 passwordPasswordField.setEchoChar((char) '*');
             }
         });
