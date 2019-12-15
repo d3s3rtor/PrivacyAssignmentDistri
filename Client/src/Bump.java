@@ -82,7 +82,6 @@ public class Bump extends JFrame implements Serializable {
                 if (response == JFileChooser.APPROVE_OPTION) {
                     filename = fc.getSelectedFile().toString();
                     secrets = client.readSecrets(filename, String.valueOf(passwordFieldBump.getPassword()));
-
                 } else {
                     JOptionPane.showMessageDialog(panel, "Something went wrong please try again.");
                 }

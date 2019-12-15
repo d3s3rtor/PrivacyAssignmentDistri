@@ -22,6 +22,7 @@ class Conversation implements Serializable {
     private SecretKey key_to, key_from;
     private Server server;
     private LinkedList<String> messages;
+    private String state;
 
 
     Conversation(String idx_send, String idx_rec, String tag_send, String tag_rec, String receiver_name, byte[] salt, SecretKey key_to, SecretKey key_from, Server server) {
@@ -35,6 +36,9 @@ class Conversation implements Serializable {
         this.key_from = key_from;
         this.server = server;
         this.messages = new LinkedList<>();
+    }
+    String getState(){
+        return state;
     }
 
     String getReceiver_name() {
@@ -186,7 +190,7 @@ class Conversation implements Serializable {
         MessageDigest message_digest = MessageDigest.getInstance(Constants.HASH_ALG);
         byte[] hashedState = message_digest.digest(stringBuilder.toString().getBytes());
         //indien de generatesecrets methode opgeroepen werd, wil het zeggen dat de staat verandert.
-        Client.setState(Base64.getEncoder().encodeToString(hashedState));
+        state = Base64.getEncoder().encodeToString(hashedState);
     }
 
     private String convertKeyToString(SecretKey key) {

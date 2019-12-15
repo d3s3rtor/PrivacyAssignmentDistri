@@ -181,10 +181,6 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
         });
     }
 
-    public String getCurrentState() {
-        return Data.readDataFromDisk().getState();
-    }
-
     public void receiveMessage(ActionEvent e) {
         if (selectedConversation != null) {
 
@@ -203,9 +199,11 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
 
     private void updateMessages(Conversation conversation) {
         if (conversation != null) {
-            if(client.getState().equals(getCurrentState())){
-                System.out.println(client.getState());
-                System.out.println(getCurrentState());
+            String state = Data.readDataFromDisk().getConversations().get(conversation.getReceiver_name()).getState();
+            String currentState = conversation.getState();
+            if (state.equals(currentState)) {
+                System.out.println(state);
+                System.out.println(currentState);
                 DefaultListModel model = new DefaultListModel();
                 for (String message : conversation.getMessages()) {
                     model.addElement(message);
@@ -217,75 +215,75 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
         }
     }
 
-        public void refreshChats () {
-            Map<String, Conversation> conversations = client.getConversations();
-            table.setFont(new Font("Corbel", Font.BOLD, 16));
-            Object[] columns = {"Conversations"};
-            DefaultTableModel model = new DefaultTableModel();
+    public void refreshChats() {
+        Map<String, Conversation> conversations = client.getConversations();
+        table.setFont(new Font("Corbel", Font.BOLD, 16));
+        Object[] columns = {"Conversations"};
+        DefaultTableModel model = new DefaultTableModel();
 
-            model.setColumnIdentifiers(columns);
-            table.setModel(model);
+        model.setColumnIdentifiers(columns);
+        table.setModel(model);
 
-            Object[] row = new Object[1];
+        Object[] row = new Object[1];
 
-            for (Map.Entry<String, Conversation> entry : conversations.entrySet()) {
-                row[0] = entry.getKey();
-                model.addRow(row);
-            }
-
-            table.setModel(model);
-            table.repaint();
-            panel1.updateUI();
+        for (Map.Entry<String, Conversation> entry : conversations.entrySet()) {
+            row[0] = entry.getKey();
+            model.addRow(row);
         }
 
-
-        @Override
-        public void onUpdateChats () {
-            refreshChats();
-            Data.writeDataToDisk(client);
-        }
-
-        @Override
-        public void onUpdateMessages () {
-            if (client.getState().equals(getCurrentState())) {
-                updateMessages(selectedConversation);
-                Data.writeDataToDisk(client);
-            }
-        }
-
-        @Override
-        public void windowOpened (WindowEvent e){
-
-        }
-
-        @Override
-        public void windowClosing (WindowEvent e){
-            Data.writeDataToDisk(client);
-        }
-
-        @Override
-        public void windowClosed (WindowEvent e){
-        }
-
-        @Override
-        public void windowIconified (WindowEvent e){
-
-        }
-
-        @Override
-        public void windowDeiconified (WindowEvent e){
-
-        }
-
-        @Override
-        public void windowActivated (WindowEvent e){
-
-        }
-
-        @Override
-        public void windowDeactivated (WindowEvent e){
-
-        }
+        table.setModel(model);
+        table.repaint();
+        panel1.updateUI();
     }
+
+
+    @Override
+    public void onUpdateChats() {
+        refreshChats();
+        Data.writeDataToDisk(client);
+    }
+
+    @Override
+    public void onUpdateMessages() {
+        updateMessages(selectedConversation);
+        Data.writeDataToDisk(client);
+
+
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        Data.writeDataToDisk(client);
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
+    }
+}
 
 
