@@ -49,7 +49,7 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
         return new TorInitializationListener() {
             @Override
             public void initializationProgress(String message, int percent) {
-                TorLabel.setText("Tor status: [ " + percent + "% ]: " + message);
+                //TorLabel.setText("Tor status: [ " + percent + "% ]: " + message);
                 progressBar1.setValue(percent);
 
             }
@@ -134,6 +134,9 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
                 t.interrupt();
                 System.setProperty("socksProxyHost", "");
                 System.setProperty("socksProxyPort", "");
+                progressBar1.setVisible(true);
+                progressBar1.setValue(0);
+                progressBar1.setStringPainted(true);
                 torClient.stop();
                 torClient.removeInitializationListener(createInitalizationListner());
                 torClient = new TorClient();
