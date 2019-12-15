@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
@@ -17,6 +18,7 @@ import java.util.concurrent.*;
     private String name;
     private Map<String, Conversation> conversations;
     private static Server server;
+    private static String state;
     private String[] server_config;
 
      Client(String name) throws RemoteException {
@@ -85,7 +87,11 @@ import java.util.concurrent.*;
         return secrets;
     }
 
-    private String generateSecrets() {
+     public static String getState() {
+         return state;
+     }
+
+     private String generateSecrets() {
         KeyGenerator keyGenerator = null;
         StringBuilder stringBuilder = null;
         try {
@@ -131,11 +137,15 @@ import java.util.concurrent.*;
                     .append(tag_send)
                     .append(Constants.DELIMITER)
                     .append(tag_rec);
-
+            MessageDigest message_digest = MessageDigest.getInstance(Constants.HASH_ALG);
+            byte[] hashedState = message_digest.digest(stringBuilder.toString().getBytes());
+            //indien de generatesecrets methode opgeroepen werd, wil het zeggen dat de staat verandert.
+            state = Base64.getEncoder().encodeToString(hashedState);
 
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+
         return stringBuilder.toString();
     }
 
