@@ -168,46 +168,33 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
 
         sendButton.addActionListener(e -> {
             if (selectedConversation != null) {
-                if (client.getState().equals(getCurrentState())) {
-                    new Thread(() -> {
-                        try {
-                            selectedConversation.setServer(this.client.connectToServer());
-                            selectedConversation.send(chatInputTextField.getText(), onUpdate);
-                            chatInputTextField.setText("");
-                        } catch (RemoteException ex) {
+                new Thread(() -> {
+                    try {
+                        selectedConversation.setServer(this.client.connectToServer());
+                        selectedConversation.send(chatInputTextField.getText(), onUpdate);
+                        chatInputTextField.setText("");
+                    } catch (RemoteException ex) {
 
-                        }
-                    }).start();
-                } else {
-                    JOptionPane.showMessageDialog(panel1, "Current state is corrupted.");
-                }
+                    }
+                }).start();
             }
         });
     }
 
-    public String getCurrentState() {
-        Data d = new Data();
-        return d.readDataFromDisk().getState();
-    }
-
     public void receiveMessage(ActionEvent e) {
         if (selectedConversation != null) {
-            if (client.getState().equals(getCurrentState())) {
-                new Thread(() -> {
-                    try {
-                        selectedConversation.setServer(client.connectToServer());
-                        selectedConversation.receive(onUpdate);
-                        serverStatusLabel.setText("");
-                    } catch (RemoteException ex) {
-                        serverStatusLabel.setText("Not connected to the server!");
-                    }
-                }).start();
-            } else {
-                JOptionPane.showMessageDialog(panel1, "Current state is corrupted.");
-            }
+
+            new Thread(() -> {
+                try {
+                    selectedConversation.setServer(client.connectToServer());
+                    selectedConversation.receive(onUpdate);
+                    serverStatusLabel.setText("");
+                } catch (RemoteException ex) {
+                    serverStatusLabel.setText("Not connected to the server!");
+                }
+            }).start();
         }
     }
-
 
     private void updateMessages(Conversation conversation) {
         if (conversation != null) {
