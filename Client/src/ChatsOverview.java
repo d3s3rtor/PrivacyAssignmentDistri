@@ -12,6 +12,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.net.ConnectException;
+import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +31,7 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
     private JScrollPane chatScrollPane;
     private JButton reconnectTorButton;
     private JProgressBar progressBar1;
+    private JLabel serverStatusLabel;
     private Client client;
     private Conversation selectedConversation;
     private Timer receiveTimer;
@@ -101,7 +104,7 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
         }
         this.addWindowListener(this);
         this.client = Data.readDataFromDisk();
-        this.receiveTimer = new Timer(1000, this::receiveMessage);
+        this.receiveTimer = new Timer(Constants.SERVER_CONNECT_TIMEOUT*1000, this::receiveMessage);
         receiveTimer.start();
         refreshChats();
         add(panel1);
@@ -165,8 +168,14 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
 
         sendButton.addActionListener(e -> {
             if (selectedConversation != null) {
-                selectedConversation.setServer(this.client.connectToServer());
-                selectedConversation.send(client.getName() + ": " + chatInputTextField.getText(), onUpdate);
+                new Thread(() -> {
+                    try {
+                        selectedConversation.setServer(this.client.connectToServer());
+                        selectedConversation.send(client.getName() + ": " + chatInputTextField.getText(), onUpdate);
+                    } catch (RemoteException ex) {
+
+                    }
+                }).start();
                 chatInputTextField.setText("");
             }
         });
@@ -174,8 +183,16 @@ public class ChatsOverview extends JFrame implements onUpdate, WindowListener {
 
     public void receiveMessage(ActionEvent e) {
         if (selectedConversation != null) {
-            selectedConversation.setServer(client.connectToServer());
-            selectedConversation.receive(onUpdate);
+
+            new Thread(() -> {
+                try {
+                    selectedConversation.setServer(client.connectToServer());
+                    selectedConversation.receive(onUpdate);
+                    serverStatusLabel.setText("");
+                } catch (RemoteException ex) {
+                    serverStatusLabel.setText("Not connected to the server!");
+                }
+            }).start();
         }
     }
 

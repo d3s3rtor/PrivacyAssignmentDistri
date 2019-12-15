@@ -2,6 +2,7 @@ import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -10,32 +11,48 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Client implements Serializable {
     private String name;
     private Map<String, Conversation> conversations;
-    private Server server;
+    private static Server server;
     private String[] server_config;
 
-    public Client(String name) {
+    public Client(String name) throws RemoteException {
         this.name = name;
         this.conversations = new TreeMap();
-        new Thread(() -> {
-            connectToServer();
-        }).start();
+        connectToServer();
+
     }
 
-    public Server connectToServer() {
-        try {
-            System.setProperty("socksProxyHost", "");
-            System.setProperty("socksProxyPort", "");
-            server_config = Data.readConfig();
-            System.out.println(Arrays.toString(server_config));
-            Registry myRegistry = LocateRegistry.getRegistry(server_config[0], Integer.parseInt(server_config[1]));
-            server = ((Server) myRegistry.lookup(server_config[2]));
-        } catch (RemoteException | NotBoundException e) {
-            e.printStackTrace();
-        }
+    public Server connectToServer() throws RemoteException {
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<?> future = executor.submit(() -> {
+                System.setProperty("socksProxyHost", "");
+                System.setProperty("socksProxyPort", "");
+                server_config = Data.readConfig();
+                System.out.println(Arrays.toString(server_config));
+                Registry myRegistry = null;
+                try {
+                    myRegistry = LocateRegistry.getRegistry(server_config[0], Integer.parseInt(server_config[1]));
+                    server = ((Server) myRegistry.lookup(server_config[2]));
+                } catch (RemoteException | NotBoundException e) {
+                    e.printStackTrace();
+                    //Wait until it gets interrupted
+                    while(true){
+                        System.out.printf("");
+                    }
+                }
+            });
+            executor.shutdown();
+            try {
+                future.get(Constants.SERVER_CONNECT_TIMEOUT, TimeUnit.SECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                e.printStackTrace();
+                future.cancel(true);
+                throw new RemoteException();
+            }
         return server;
     }
 
@@ -72,7 +89,7 @@ public class Client implements Serializable {
         KeyGenerator keyGenerator = null;
         StringBuilder stringBuilder = null;
         try {
-            if(server_config == null) server_config = Data.readConfig();
+            if (server_config == null) server_config = Data.readConfig();
             //generate tags, keys, id and salt
             keyGenerator = KeyGenerator.getInstance(Constants.ENCRYPT_ALG);
 
