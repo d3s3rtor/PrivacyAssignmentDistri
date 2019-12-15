@@ -2,6 +2,7 @@
 import javax.crypto.*;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.security.auth.DestroyFailedException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.security.InvalidKeyException;
@@ -96,6 +97,11 @@ import java.util.LinkedList;
             cipher.init(Cipher.DECRYPT_MODE, key_from);
             String decrypted = new String(cipher.doFinal(cipher_text));
             SecretKey key = deriveKey(key_from);
+
+            try{
+                key_from.destroy();
+            }catch (DestroyFailedException e) {
+            }
             if (key != null) {
                 key_from = key;
             }
