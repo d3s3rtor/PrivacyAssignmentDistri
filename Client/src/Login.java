@@ -30,7 +30,7 @@ public class Login extends JFrame {
     public Login() {
         add(rootPanel);
         setTitle("Login");
-        setSize(500, 400);
+        setSize(400, 300);
         CenteredFrame(this);
 
 
@@ -70,13 +70,20 @@ public class Login extends JFrame {
                 }
             }
             if (username == false) {
-                JOptionPane.showMessageDialog(rootPanel,
-                        userName + " was not found. Please register first!");
-                //TODO: open registery frame
+                int res = JOptionPane.showConfirmDialog(rootPanel,
+                        userName + " was not found. Do you want to register first?","Register",JOptionPane.YES_NO_OPTION);
+                usernameTextField.setText("");
+                passwordPasswordField.setText("");
+                if(res == 0) {//yes
+                    RegisterForm registerForm = new RegisterForm();
+                    registerForm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    registerForm.setVisible(true);
+                }
             }
             if (password == false && username == true) {
                 JOptionPane.showMessageDialog(rootPanel,
                         "Password incorrect. Please try again.");
+                passwordPasswordField.setText("");
             }
         });
         registerButton.addActionListener(e -> {

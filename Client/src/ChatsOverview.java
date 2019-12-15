@@ -26,6 +26,7 @@ public class ChatsOverview extends JFrame implements onUpdate {
     private JFormattedTextField TorLabel;
     private JScrollPane chatScrollPane;
     private JButton reconnectTorButton;
+    private JProgressBar progressBar1;
     private Client client;
     private Conversation selectedConversation;
     private Timer receiveTimer;
@@ -46,11 +47,14 @@ public class ChatsOverview extends JFrame implements onUpdate {
             @Override
             public void initializationProgress(String message, int percent) {
                 TorLabel.setText("Tor status: [ " + percent + "% ]: " + message);
+                progressBar1.setValue(percent);
+
             }
 
             @Override
             public void initializationCompleted() {
                 TorLabel.setText("Tor is ready to go!");
+                progressBar1.setVisible(false);
                 t = new Thread(() -> {
                     testOrchidUsingSystemPropsProxy();
                 });
@@ -86,7 +90,8 @@ public class ChatsOverview extends JFrame implements onUpdate {
 
     public ChatsOverview() {
         try {
-
+            progressBar1.setValue(0);
+            progressBar1.setStringPainted(true);
             torClient = new TorClient();
             torClient.addInitializationListener(createInitalizationListner());
             torClient.start();

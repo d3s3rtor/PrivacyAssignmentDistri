@@ -31,7 +31,7 @@ public class RegisterForm extends JFrame {
     public RegisterForm() {
         add(registerPanel);
         setTitle("RegisterForm");
-        setSize(400, 200);
+        setSize(400, 300);
         CenteredFrame(this);
         submitButton.addActionListener(e -> {
             userName = usernameTextField.getText();
